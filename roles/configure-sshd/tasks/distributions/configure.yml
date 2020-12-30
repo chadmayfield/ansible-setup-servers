@@ -11,6 +11,7 @@
 ---
 - name: Backup existing sshd_config
   copy:
+    become: true
     src: "{{ sshd_config }}"
     dest: "{{ sshd_config }}.ORIG"
     owner: root
