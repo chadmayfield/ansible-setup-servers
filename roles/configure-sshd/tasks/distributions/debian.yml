@@ -3,7 +3,7 @@
 # license  : gplv3
 ---
 - debug:
-    msg: "Hello, my OS is: {{ ansible_distribution|lower }} {{ ansible_distribuition_major_version }}"
+    msg: "Hello, my OS is: {{ ansible_distribution|lower }} {{ ansible_distribution_major_version }}"
 
 - name: Import tasks to configure SSH
   include_tasks: "configure.yml"
