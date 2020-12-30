@@ -1,0 +1,9 @@
+# ubuntu.yml : playbook to configure ssh on ubuntu
+# author   : Chad Mayfield (chad@chd.my)
+# license  : gplv3
+---
+- debug:
+    msg: "Hello, my OS is: {{ asnible_distribution|lower }} {{ ansible_distribuition_major_version }}"
+
+- name: Import tasks to configure SSH
+  include_tasks: "configure.yml"
