@@ -17,7 +17,6 @@ steps:
   #- apt-mark hold linux-image-generic linux-headers-generic
   #- apt-get -y -qq update
   #- apt-get -y -qq upgrade
-  - apt-get -y -qq install openssh-server
   - ansible-playbook setup-dns-server.yml
 
 trigger:
