@@ -1,0 +1,5 @@
+# main.yml : main variables to configure ssh
+# author   : Chad Mayfield (chad@chd.my)
+# license  : gplv3
+---
+sshd_config: /etc/ssh/sshd_config

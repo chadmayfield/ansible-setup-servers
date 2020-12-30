@@ -1,0 +1,7 @@
+---
+- name: Setup DNS Server
+  hosts: dnsserver
+  become: yes
+
+  roles:
+    - configure-sshd

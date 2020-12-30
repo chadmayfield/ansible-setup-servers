@@ -1,0 +1,27 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: build
+  #image: geerlingguy/docker-ubuntu1604-ansible:latest
+  image: geerlingguy/docker-ubuntu1804-ansible:latest
+  #image: geerlingguy/docker-ubuntu2004-ansible:latest
+  pull: if-not-exists
+  commands:
+  #- apt-mark hold linux-image-generic linux-headers-generic
+  #- apt-get -y -qq update
+  #- apt-get -y -qq upgrade
+  - apt-get -y -qq install ansible python3 python3-pip python3-venv
+  - ansible-playbook setup-dns-server.yml
+
+trigger:
+  branch:
+  - main
+  event:
+  - push

@@ -1,0 +1,188 @@
+# configure.yml : configure/secure ssh
+# author   : Chad Mayfield (chad@chd.my)
+# license  : gplv3
+
+# ===============================================
+# TODO: bind to specific interface
+# TODO: whitelist internal network addresses
+# TODO: rate limit ssh connections at firewall
+# TODO: configure auditd on red hat derivitives
+# ===============================================
+---
+- name: Backup existing sshd_config
+  copy:
+    src: "{{ sshd_config }}"
+    dest: "{{ sshd_config }}.ORIG"
+    owner: root
+    group: root
+    mode: '0644'
+
+# secure ssh, config options mostly based on blog post;
+# https://chadmayfield.com/2016/12/05/securing-ssh-in-linux/
+
+# enable key-based auth
+- name: Enable key-based authentication
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^(#P|P)ubkeyAuthentication .*$'
+    line: 'PubkeyAuthentication yes'
+
+# disable interactive logins
+- name: Disable interactive logins (Password Auth) 
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^(#P|P)asswordAuthentication .*$'
+    line: 'PasswordAuthentication no'
+
+# disable interactive logins
+- name: Disable interactive logins (Challenge Response Auth)
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^(#C|C)hallengeResponseAuth.* yes'
+    line: 'ChallengeResponseAuthentication no'
+
+# set max failed login attempts
+- name: Disable root logins
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^(#M|M)axAuthTries .*$'
+    line: 'MaxAuthTries 3'
+
+# reduce max startups
+- name: Reduce max startups
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^(#M|M)axStartups .*$'
+    line: 'MaxStartups 3:50:10'
+
+# reduce login grace time
+- name: Reduce login grace time
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '(#L|L)oginGraceTime .*$'
+    line: 'LoginGraceTime 30'
+
+# limit access to specific users
+- name: "Limit remote user access to {{ userid.stdout }}"
+  lineinfile:
+    path: "{{ sshd_config }}"
+    line: "AllowUsers {{ userid.stdout }}"
+
+- name: Limit remote user access to wheel
+  lineinfile:
+    path: "{{ sshd_config }}"
+    line: "AllowUsers wheel"
+
+# use privilege seperation
+- name: Enable use privilege seperation
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^(#U|U)sePrivilegeSeparation .*$'
+    line: 'UsePrivilegeSeparation yes'
+
+# enable strict mode
+- name: Enable strict modes
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^(#S|S)trictModes .*$'
+    line: 'StrictModes yes'
+
+# use pam
+- name: Use PAM
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^(#U|U)sePAM .*$'
+    line: 'UsePAM yes'
+
+# disable the use of .rhosts and .shosts, just in case
+- name: Ignore rhosts
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^(#I|I)gnoreRhosts .*$'
+    line: 'IgnoreRhosts yes'
+
+# disable SSHv1 rhosts/host.equiv
+- name: Enable strict modes
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^(#R|R)hostsRSAAuthentication .*$'
+    line: 'RhostsRSAAuthentication no'
+
+# disable SSHv2 rhosts
+- name: Enable strict modes
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^(#H|H)ostbasedAuthentication .*$'
+    line: 'HostbasedAuthentication no'
+
+# disallow empty passwords
+- name: Disable empty passwords
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^(#P|P)ermitEmptyPasswords .*$'
+    line: 'PermitEmptyPasswords no'
+
+# disable tcp forwarding
+- name: Disable TCP forwarding
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^(#A|A)llowTCPForwarding .*$'
+    line: 'AllowTCPForwarding no'
+
+# disable x forwarding
+- name: Disable X11 forwarding
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^(#X|X)11Forwarding .*$'
+    line: 'X11Forwarding no'
+
+# disallow root logins
+- name: Disable root logins
+  lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^(#P|P)ermitRootLogin .*$'
+    line: 'PermitRootLogin no' 
+
+# TODO: generate random 'port' on which to listen, this will
+#       actually screw up ansible since it will switch ports
+#- name: Generate random high port number on which SSHd will listen
+#  command: "{{ ansible_python.executable }}"
+#  args:
+#    stdin: |
+#      import random
+#      print(random.randint(20000,65535))
+#  register: results
+#
+#- name: Change listening port
+#  lineinfile:
+#    path: "{{ sshd_config }}"
+#.   state: present
+#    regexp: '^(#P|P)ort\ .*$'
+#    line: "Port {{ results.stdout }}"
+#  notify: "restart sshd"
+  
+# TODO: set maximum failed login attempts
+
+# TODO: set allowed ciphers (Ciphers aes128-ctr,aes192-ctr,aes256-ctr)
+
+# TODO: set allowed fips hmacs (MACs hmac-sha2-256,hmac-sha2-512)
+
+# TODO: set sshv2 only
+
+# TODO: disable GSSAPI authentication
+
+# TODO: disable user override of env variables (PermitUserEnvironment no)
+
+# TODO: set clientaliveinterval (ClientAliveInterval 600 )
+
+# TODO: set clientalivemax (ClientAliveCountMax 0)
+
+# TODO: set kerberos auth (KerberosAuthentication no)
+
+# TODO: set compression level (Compression delayed)
+
+# TODO: print lastlog (PrintLastLog yes)
+
+# TODO: enable ignoreuserknownhosts (IgnoreUserKnownHosts yes)
+
+#EOF

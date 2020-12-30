@@ -1,0 +1,9 @@
+# main.yml : main playbook to configure ssh
+# author   : Chad Mayfield (chad@chd.my)
+# license  : gplv3
+---	
+- name: Import tasks for current OS
+  include_tasks: "{{ item }}"
+  with_first_found:
+    - "distributions/{{ asnible_distribution|lower }}-{{ ansible_distribuition_major_version }}.yml"
+    - "distributions/{{ ansible_distribution|lower }}.yml"

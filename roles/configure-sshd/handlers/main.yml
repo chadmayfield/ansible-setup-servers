@@ -1,0 +1,10 @@
+# main.yml : handlers for ssh
+# author   : Chad Mayfield (chad@chd.my)
+# license  : gplv3
+---
+# restart daemon
+- name: restart sshd
+  systemd:
+    name: sshd
+    state: restarted
+    daemon_reload: yes
